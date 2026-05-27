@@ -398,6 +398,7 @@ document.addEventListener("DOMContentLoaded", () => {
   handleScroll();
   setupIntersectionObserver();
   updateAvailableTimes();
+  renderReviews();
 });
 
 // Close mobile menu on window resize
@@ -607,4 +608,221 @@ backToTopBtn.addEventListener("click", () => {
     top: 0,
     behavior: "smooth",
   });
+});
+
+// ── Skeleton Loader Initialization ─────────────────────────────────────
+function createCardSkeleton() {
+  const sk = document.createElement('div');
+  sk.className = 'skeleton-card skeleton';
+
+  const left = document.createElement('div');
+  left.className = 'skeleton-img';
+
+  const right = document.createElement('div');
+  right.className = 'skeleton-lines';
+
+  const line1 = document.createElement('div');
+  line1.className = 'skeleton-line long';
+  const line2 = document.createElement('div');
+  line2.className = 'skeleton-line medium';
+  const line3 = document.createElement('div');
+  line3.className = 'skeleton-line short';
+
+  right.appendChild(line1);
+  right.appendChild(line2);
+  right.appendChild(line3);
+
+  sk.appendChild(left);
+  sk.appendChild(right);
+
+  return sk;
+}
+
+function attachSkeletonToCard(card) {
+  if (card.__skeletonAttached) return;
+  const wrapper = document.createElement('div');
+  wrapper.className = 'skeleton-wrapper';
+
+  // Move existing children into wrapper
+  while (card.firstChild) {
+    wrapper.appendChild(card.firstChild);
+  }
+
+  card.appendChild(wrapper);
+
+  const skeleton = createCardSkeleton();
+  wrapper.appendChild(skeleton);
+
+  // Hide native images inside the card while loading
+  const imgs = wrapper.querySelectorAll('img');
+  imgs.forEach((img) => {
+    img.classList.add('image-hidden');
+    // lazy-load optimization: set loading attribute where supported
+    try { if (!img.hasAttribute('loading')) img.setAttribute('loading', 'lazy'); } catch (e) {}
+
+    if (img.complete && img.naturalWidth > 0) {
+      // Already loaded from cache - reveal immediately
+      img.classList.add('image-loaded');
+      img.classList.remove('image-hidden');
+      skeleton.remove();
+    } else {
+      // Wait for load or error
+      img.addEventListener('load', function onLoad() {
+        img.classList.add('image-loaded');
+        img.classList.remove('image-hidden');
+        // fade out skeleton then remove
+        skeleton.style.transition = 'opacity 0.45s ease';
+        skeleton.style.opacity = '0';
+        setTimeout(() => skeleton.remove(), 500);
+        img.removeEventListener('load', onLoad);
+      });
+
+      img.addEventListener('error', function onError() {
+        // remove skeleton even if image fails to avoid permanent overlays
+        skeleton.style.transition = 'opacity 0.25s ease';
+        skeleton.style.opacity = '0';
+        setTimeout(() => skeleton.remove(), 300);
+        img.classList.remove('image-hidden');
+        img.removeEventListener('error', onError);
+      });
+    }
+  });
+
+  card.__skeletonAttached = true;
+}
+
+function attachSkeletonToSimpleImage(container, minHeight = 180) {
+  // container is element that contains a single img as background or child
+  const img = container.querySelector('img');
+  if (!img) return;
+  if (container.__skeletonAttached) return;
+
+  const sk = document.createElement('div');
+  sk.className = 'skeleton-img skeleton';
+  sk.style.height = minHeight + 'px';
+  sk.style.width = '100%';
+  sk.style.borderRadius = getComputedStyle(container).borderRadius || '4px';
+  sk.style.position = 'absolute';
+  sk.style.inset = '0';
+  sk.style.zIndex = '2';
+
+  // ensure container is positioned to allow absolute overlay
+  const prevPos = getComputedStyle(container).position;
+  if (prevPos === 'static') container.style.position = 'relative';
+
+  container.appendChild(sk);
+
+  img.classList.add('image-hidden');
+
+  if (img.complete && img.naturalWidth > 0) {
+    img.classList.add('image-loaded');
+    img.classList.remove('image-hidden');
+    sk.remove();
+  } else {
+    try { if (!img.hasAttribute('loading')) img.setAttribute('loading', 'lazy'); } catch (e) {}
+
+    img.addEventListener('load', function onLoad() {
+      img.classList.add('image-loaded');
+      img.classList.remove('image-hidden');
+      sk.style.transition = 'opacity 0.45s ease';
+      sk.style.opacity = '0';
+      setTimeout(() => sk.remove(), 500);
+      img.removeEventListener('load', onLoad);
+    });
+    img.addEventListener('error', function onError() {
+      sk.style.opacity = '0';
+      setTimeout(() => sk.remove(), 300);
+      img.classList.remove('image-hidden');
+      img.removeEventListener('error', onError);
+    });
+  }
+
+  container.__skeletonAttached = true;
+}
+
+// Text skeletons
+function createTextSkeleton(lines = 3) {
+  const wrapper = document.createElement('div');
+  wrapper.className = 'skeleton skeleton-overlay skeleton-fade';
+  wrapper.setAttribute('aria-hidden', 'true');
+
+  const block = document.createElement('div');
+  block.className = 'skeleton-lines';
+
+  for (let i = 0; i < lines; i++) {
+    const line = document.createElement('div');
+    line.className = 'skeleton-line';
+    // vary width for realism
+    if (i === 0) line.classList.add('long');
+    else if (i === lines - 1) line.classList.add('short');
+    else line.classList.add('medium');
+    block.appendChild(line);
+  }
+
+  wrapper.appendChild(block);
+  return wrapper;
+}
+
+function attachSkeletonToTextBlock(el, lines = 3) {
+  if (!el || el.__skeletonAttached) return;
+
+  // ensure wrapper for absolute overlay
+  el.classList.add('skeleton-wrapper');
+  const sk = createTextSkeleton(lines);
+
+  // hide content until revealed
+  el.classList.add('content-hidden');
+
+  // insert skeleton overlay
+  sk.style.position = 'absolute';
+  sk.style.top = 0;
+  sk.style.left = 0;
+  sk.style.right = 0;
+  sk.style.bottom = 0;
+  sk.style.zIndex = 2;
+  el.appendChild(sk);
+
+  // Reveal content after microtask or when images inside have loaded
+  // For static text, unhide quickly to avoid long overlays
+  requestAnimationFrame(() => {
+    // small delay to allow shimmer to show slightly
+    setTimeout(() => {
+      el.classList.remove('content-hidden');
+      el.classList.add('content-visible');
+      // fade out skeleton
+      sk.style.opacity = '0';
+      setTimeout(() => sk.remove(), 500);
+    }, 300);
+  });
+
+  el.__skeletonAttached = true;
+}
+
+// Updated init to attach text skeletons
+function initSkeletonLoaders() {
+  // Menu card skeletons
+  const cards = document.querySelectorAll('.food-card');
+  cards.forEach((card) => attachSkeletonToCard(card));
+
+  // Large section images: hero, about image, reservation bg
+  const largeContainers = [
+    document.querySelector('.hero-bg'),
+    document.querySelector('.about-image'),
+    document.querySelector('.reservation-bg'),
+  ];
+
+  largeContainers.forEach((c) => {
+    if (c) attachSkeletonToSimpleImage(c, 360);
+  });
+
+  // Text blocks (about, reservation info, first paragraph areas)
+  const textTargets = document.querySelectorAll('.about-content, .reservation-info, .review-form-heading');
+  textTargets.forEach((t) => attachSkeletonToTextBlock(t, 3));
+}
+
+// Initialize skeletons once DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+  // existing DOMContentLoaded handlers already call init functions earlier,
+  // but ensure skeletons are attached after render
+  initSkeletonLoaders();
 });
