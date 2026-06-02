@@ -172,6 +172,7 @@ h4 {
   color: var(--color-text);
   position: relative;
   padding: 4px 0;
+  transition: color 0.3s ease, transform 0.3s ease;
 }
 
 .nav-link::after {
@@ -180,12 +181,15 @@ h4 {
   bottom: 0;
   left: 0;
   width: 0;
-  height: 1px;
+  height: 2px;
   background-color: var(--color-primary);
   transition: width var(--transition);
 }
 
-.nav-link:hover::after,
+.nav-link:hover::after{
+   color: var(--color-primary);
+  transform: translateY(-2px);
+}
 .nav-link.active::after {
   width: 100%;
 }
