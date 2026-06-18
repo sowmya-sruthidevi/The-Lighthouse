@@ -83,7 +83,7 @@ themeToggle.addEventListener('click', () => {
 
 // ── Navigation scroll effect ──
 function handleScroll() {
-  const currentScroll = window.pageYOffset;
+  const currentScroll = window.scrollY;
 
   // Sticky nav background
   nav.classList.toggle('scrolled', currentScroll > 50);
@@ -108,7 +108,7 @@ function handleScroll() {
 // ── Active nav link on scroll ───
 function updateActiveNavLink() {
   const sections       = document.querySelectorAll('section[id]');
-  const scrollPosition = window.pageYOffset + 150;
+  const scrollPosition = window.scrollY + 150;
 
   sections.forEach((section) => {
     const sectionTop    = section.offsetTop;
