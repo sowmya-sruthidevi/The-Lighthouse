@@ -231,27 +231,30 @@ body.light-theme .nav.scrolled {
   background: rgba(214, 184, 112, 0.95);
   backdrop-filter: blur(10px);
 }
-
+/* Update the active/hover underline color for light theme */
+body.light-theme .nav-link::after {
+  background-color: white;
+}
 body.light-theme .nav {
-  background: rgba(214, 184, 112, 0.15);
+  background: transparent;
 }
 
 body.light-theme .nav-link {
-  color: #1a1714;
+  color: white;
 }
 
 body.light-theme .nav-logo {
-  color: #8a6e2f;
+  color: white;
 }
 
 body.light-theme .nav-link.active,
 body.light-theme .nav-link:hover {
-  color: #8a6e2f;
+  color: white;
 }
 
 body.light-theme .nav-cta {
-  border-color: #8a6e2f;
-  color: #8a6e2f;
+  border-color: white;
+  color: white;
 }
 
 body.light-theme .nav-cta:hover {
