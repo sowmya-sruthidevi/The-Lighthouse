@@ -441,7 +441,7 @@ body.light-theme .btn-outline:hover {
 }
 .hero-scroll {
   position: absolute;
-  bottom: 40px;
+  bottom: 11px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
