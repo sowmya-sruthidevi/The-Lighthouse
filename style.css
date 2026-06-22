@@ -99,23 +99,21 @@ h4 {
   text-transform: uppercase;
   border: 1px solid transparent;
   cursor: pointer;
-  transition: all var(--transition);
-}
 
-.btn-primary {
-  background-color: var(--color-primary);
-  color: var(--color-bg);
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease,
+    background-color 0.3s ease,
+    color 0.3s ease;
 }
 
 .btn-primary:hover {
   background-color: var(--color-primary-dark);
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 8px 20px rgba(212, 175, 55, 0.35);
 }
 
-.btn-outline {
-  background-color: transparent;
-  border-color: var(--color-text);
-  color: var(--color-text);
-}
+
 
 body.light-theme .hero .btn-outline {
   color: #f5f2ed;
@@ -140,7 +138,11 @@ body.light-theme .reservation .detail-item span {
 .btn-outline:hover {
   background-color: var(--color-text);
   color: var(--color-bg);
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 8px 20px rgba(255, 255, 255, 0.2);
 }
+
+
 
 .btn-full {
   width: 100%;
