@@ -14,6 +14,11 @@ const dateInput = document.getElementById("reservation-date");
 const timeSelect = document.getElementById("time");
 const themeToggle = document.getElementById("themeToggle");
 
+// FIX #4 — Declare filterBtns, menuTabs, menuPanels (were used but never declared)
+const filterBtns = document.querySelectorAll(".filter-btn");
+const menuTabs = document.querySelectorAll(".menu-tab");
+const menuPanels = document.querySelectorAll(".menu-panel");
+
 // ── Device detection ───
 const isTouchDevice = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
 
@@ -171,8 +176,7 @@ themeToggle.addEventListener("click", () => {
 
 // ── Menu Search and Filter ─────────────────────────
 
-
-
+// FIX #1 — Use the correct parameter names (timeFilter, cuisineFilter) instead of undefined 'filter'
 function filterMenuItems(timeFilter, cuisineFilter, searchText) {
   const menuItems = document.querySelectorAll(".menu-item");
   let visibleCount = 0;
@@ -180,10 +184,11 @@ function filterMenuItems(timeFilter, cuisineFilter, searchText) {
   menuItems.forEach((item) => {
     const itemName = item.querySelector('h3')?.textContent?.toLowerCase() || '';
     const category = item.dataset.category;
-    const matchesSearch = itemName.includes(searchText.toLowerCase());
-    const matchesFilter = filter === 'all' || category === filter;
+    const matchesSearch = !searchText || itemName.includes(searchText.toLowerCase());
+    const matchesTime = timeFilter === 'all' || category === timeFilter;
+    const matchesCuisine = !cuisineFilter || cuisineFilter === 'all' || item.dataset.cuisine === cuisineFilter;
 
-    if (matchesSearch && matchesFilter) {
+    if (matchesSearch && matchesTime && matchesCuisine) {
       item.classList.remove('hidden-item');
       visibleCount++;
     } else {
@@ -204,6 +209,7 @@ function filterMenuItems(timeFilter, cuisineFilter, searchText) {
     noResults.remove();
   }
 }
+
 function triggerFilter() {
   const activeBtn = document.querySelector(".filter-btn.active");
   const timeFilter = activeBtn ? activeBtn.dataset.filter : "all";
@@ -212,6 +218,7 @@ function triggerFilter() {
   
   filterMenuItems(timeFilter, cuisineFilter, searchText);
 }
+
 if (cuisineDropdown) {
   cuisineDropdown.addEventListener("change", triggerFilter);
 }
@@ -219,24 +226,17 @@ if (cuisineDropdown) {
 if (menuSearch) {
   menuSearch.addEventListener("input", triggerFilter);
 }
+
 // Filter buttons
 filterBtns.forEach((btn) => {
   btn.addEventListener("click", () => {
     filterBtns.forEach((b) => b.classList.remove("active"));
-
     btn.classList.add("active");
     triggerFilter();
-
-    
   });
 });
 
-if (menuSearch) {
-  menuSearch.addEventListener('input', () => {
-    const activeFilter = document.querySelector('.filter-btn.active')?.dataset.filter || 'all';
-    filterMenuItems(activeFilter, menuSearch.value);
-  });
-}
+// FIX #2 — Removed duplicate menuSearch 'input' listener (was calling filterMenuItems with wrong/missing args)
 
  
 
@@ -255,7 +255,7 @@ function smoothScroll(e) {
   }
   closeMobileMenu();
 }
-}
+
 // ── Reservation form submission ──
 function handleFormSubmit(e) {
   e.preventDefault();
@@ -411,6 +411,7 @@ if (backToTopBtn) {
 
 // ── Event Listeners ──
 window.addEventListener('scroll', handleScroll);
+
 navToggle.addEventListener('click', toggleMobileMenu);
 
 navLinks.forEach((link) => link.addEventListener('click', smoothScroll));
