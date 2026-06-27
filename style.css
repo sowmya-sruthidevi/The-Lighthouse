@@ -1296,7 +1296,7 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
   color: var(--color-primary);
   transform: scale(1.1);
 }
-}
+
 @media (max-width: 1024px) {
   .reviews-grid {
     grid-template-columns: repeat(2, 1fr);
@@ -2199,4 +2199,10 @@ body.light-theme .back-details span {
 
 body.light-theme .polaroid-tape {
   background: rgba(255, 200, 100, 0.8);
+}
+#char-counter {
+  margin-top: 6px;
+  font-size: 0.9rem;
+  color: #888;
+  text-align: right;
 }

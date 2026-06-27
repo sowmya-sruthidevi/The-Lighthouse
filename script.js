@@ -667,3 +667,13 @@ const styleForMobile = `
 const mobileStyle = document.createElement('style');
 mobileStyle.textContent = styleForMobile;
 document.head.appendChild(mobileStyle);
+
+// Live character counter for Special Requests
+const requestsTextarea = document.getElementById("requests");
+const charCounter = document.getElementById("char-counter");
+
+if (requestsTextarea && charCounter) {
+  requestsTextarea.addEventListener("input", () => {
+    charCounter.textContent = `${requestsTextarea.value.length} / 250 characters`;
+  });
+}
