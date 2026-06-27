@@ -646,6 +646,13 @@ document.addEventListener('click', function (e) {
   }
 });
 
+// ── Display total menu category count ──
+function displayCategoryCount() {
+  const categoryBtns = document.querySelectorAll('.filter-btn:not([data-filter="all"])');
+  const countEl = document.getElementById('menu-category-count');
+  if (countEl) countEl.textContent = categoryBtns.length + ' Menu Categories Available';
+}
+
 // ── Initialise ───
 document.addEventListener('DOMContentLoaded', function () {
   handleScroll();
@@ -653,6 +660,7 @@ document.addEventListener('DOMContentLoaded', function () {
   updateAvailableTimes();
   renderReviews();
   handleCardFlip();
+  displayCategoryCount();
 });
 
 // Mobile flip style
@@ -668,12 +676,9 @@ const mobileStyle = document.createElement('style');
 mobileStyle.textContent = styleForMobile;
 document.head.appendChild(mobileStyle);
 
-// Live character counter for Special Requests
-const requestsTextarea = document.getElementById("requests");
-const charCounter = document.getElementById("char-counter");
+// Automatically update copyright year
+const currentYear = document.getElementById("current-year");
 
-if (requestsTextarea && charCounter) {
-  requestsTextarea.addEventListener("input", () => {
-    charCounter.textContent = `${requestsTextarea.value.length} / 250 characters`;
-  });
+if (currentYear) {
+  currentYear.textContent = new Date().getFullYear();
 }
