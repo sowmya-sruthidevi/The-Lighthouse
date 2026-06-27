@@ -1296,7 +1296,7 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
   color: var(--color-primary);
   transform: scale(1.1);
 }
-}
+
 @media (max-width: 1024px) {
   .reviews-grid {
     grid-template-columns: repeat(2, 1fr);
@@ -2199,4 +2199,13 @@ body.light-theme .back-details span {
 
 body.light-theme .polaroid-tape {
   background: rgba(255, 200, 100, 0.8);
+}
+.chef-recommendation {
+  margin-top: 20px;
+  font-size: 1rem;
+  color: #f5d67b;
+}
+
+.chef-recommendation strong {
+  color: #ffffff;
 }

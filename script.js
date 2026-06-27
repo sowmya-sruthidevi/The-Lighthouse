@@ -645,6 +645,20 @@ document.addEventListener('click', function (e) {
     });
   }
 });
+// Random Chef's Recommendation
+function displayChefsRecommendation() {
+  const recommendation = document.getElementById("chefRecommendation");
+  if (!recommendation) return;
+
+  const menuItems = Array.from(document.querySelectorAll(".menu-item h3"));
+
+  if (menuItems.length === 0) return;
+
+  const randomItem =
+    menuItems[Math.floor(Math.random() * menuItems.length)];
+
+  recommendation.textContent = randomItem.textContent;
+}
 
 // ── Initialise ───
 document.addEventListener('DOMContentLoaded', function () {
@@ -653,6 +667,7 @@ document.addEventListener('DOMContentLoaded', function () {
   updateAvailableTimes();
   renderReviews();
   handleCardFlip();
+  displayChefsRecommendation();
 });
 
 // Mobile flip style
