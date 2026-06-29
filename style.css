@@ -2354,3 +2354,83 @@ body.light-theme .polaroid-tape {
   margin-top: 0.4rem;
   letter-spacing: 0.04em;
 }
+/* ─── Open / Closed Status Badge ─────────────────────────────────────────── */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 20px;
+  vertical-align: middle;
+  margin-left: 10px;
+  position: relative;
+  top: -2px;
+  transition: opacity var(--transition);
+}
+
+.status-badge--open {
+  background-color: rgba(74, 163, 93, 0.15);
+  color: #5cc974;
+  border: 1px solid rgba(74, 163, 93, 0.35);
+}
+
+.status-badge--open::before {
+  content: '';
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #5cc974;
+  box-shadow: 0 0 0 0 rgba(92, 201, 116, 0.6);
+  animation: pulse-green 2s infinite;
+}
+
+.status-badge--closed {
+  background-color: rgba(200, 80, 80, 0.12);
+  color: #e07070;
+  border: 1px solid rgba(200, 80, 80, 0.3);
+}
+
+.status-badge--closed::before {
+  content: '';
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #e07070;
+}
+
+@keyframes pulse-green {
+  0%   { box-shadow: 0 0 0 0 rgba(92, 201, 116, 0.6); }
+  70%  { box-shadow: 0 0 0 7px rgba(92, 201, 116, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(92, 201, 116, 0); }
+}
+
+body.light-theme .status-badge--open {
+  background-color: rgba(46, 140, 70, 0.12);
+  color: #2e8c46;
+  border-color: rgba(46, 140, 70, 0.3);
+}
+
+body.light-theme .status-badge--open::before {
+  background: #2e8c46;
+  box-shadow: 0 0 0 0 rgba(46, 140, 70, 0.5);
+}
+
+body.light-theme .status-badge--closed {
+  background-color: rgba(180, 50, 50, 0.1);
+  color: #b43232;
+  border-color: rgba(180, 50, 50, 0.25);
+}
+
+body.light-theme .status-badge--closed::before {
+  background: #b43232;
+}
+
+
+

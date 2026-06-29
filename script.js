@@ -756,3 +756,45 @@ const currentYear = document.getElementById("current-year");
 if (currentYear) {
   currentYear.textContent = new Date().getFullYear();
 }
+
+// ─── Open / Closed Badge ────────────────────────────────────────────────────
+(function updateOpenStatusBadge() {
+  const sessions = [
+    { name: 'Breakfast', open: [7, 0],  close: [11, 0]  },
+    { name: 'Lunch',     open: [11, 30], close: [15, 0]  },
+    { name: 'Dinner',    open: [17, 0],  close: [23, 0]  },
+    { name: 'Bar',       open: [11, 0],  close: [24, 0]  },
+  ];
+
+  function getOpenSession() {
+    const now  = new Date();
+    const h    = now.getHours();
+    const m    = now.getMinutes();
+    const mins = h * 60 + m;
+    return sessions.find(s => {
+      const openMins  = s.open[0]  * 60 + s.open[1];
+      const closeMins = s.close[0] * 60 + s.close[1];
+      return mins >= openMins && mins < closeMins;
+    }) || null;
+  }
+
+  function render() {
+    const badge = document.getElementById('open-status-badge');
+    if (!badge) return;
+    const session = getOpenSession();
+    if (session) {
+      badge.className = 'status-badge status-badge--open';
+      badge.textContent = `Open — ${session.name}`;
+    } else {
+      badge.className = 'status-badge status-badge--closed';
+      badge.textContent = 'Closed';
+    }
+  }
+
+  render();
+  // Re-evaluate every minute so the badge stays accurate without a reload
+  setInterval(render, 60 * 1000);
+})();
+
+
+
