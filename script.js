@@ -205,6 +205,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const sectionId = section.id;
 
       if (scrollPosition >= sectionTop && scrollPosition < sectionBottom) {
+        const hasLink = Array.from(navLinks).some((link) => link.dataset.section === sectionId);
+        if (!hasLink) return;
         navLinks.forEach((link) => {
           link.classList.toggle("active", link.dataset.section === sectionId);
         });
