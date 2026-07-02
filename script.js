@@ -751,7 +751,9 @@ function setupOrderFeatures() {
 
     item.querySelector(".food-content")?.appendChild(actions);
 
-    actions.querySelector(".add-cart-btn")?.addEventListener("click", () => addToCart(data));
+    actions.querySelector(".add-cart-btn")?.addEventListener("click", () => {
+      openCustomizerModal(data, item.dataset.category || "lunch");
+    });
     actions.querySelector(".favorite-btn")?.addEventListener("click", () => toggleFavorite(data));
   });
 
@@ -840,6 +842,12 @@ function renderOrderState() {
           <img src="${item.image}" alt="${item.title}" class="order-item-img">
           <div class="order-item-details">
             <h4>${item.title}</h4>
+            ${item.customizations ? `
+              <div class="order-item-customizations">
+                <span>🌶️ ${item.customizations.spice}</span> | <span>Side: ${item.customizations.side}</span>
+                ${item.customizations.toppings && item.customizations.toppings.length ? `<br><span>Extras: ${item.customizations.toppings.join(', ')}</span>` : ''}
+              </div>
+            ` : ''}
             <p>\u20B9${item.price}</p>
           </div>
           <div class="order-item-qty">
@@ -1362,4 +1370,130 @@ function setupGiftCardCustomizer() {
   downloadBtn?.addEventListener("click", () => {
     window.print();
   });
+}
+
+// =============================================
+// Feature 3: Menu Item Customizer
+// =============================================
+let currentCustomizingItem = null;
+
+function openCustomizerModal(item, category) {
+  currentCustomizingItem = item;
+  
+  const modal = document.getElementById("customizer-modal");
+  const title = document.getElementById("customizer-title");
+  const basePriceEl = document.getElementById("customizer-base-price");
+  const form = document.getElementById("customizer-form");
+
+  if (!modal || !form) return;
+
+  title.textContent = `Customize ${item.title}`;
+  basePriceEl.textContent = `Base Price: ₹${item.price}`;
+
+  const spiceGroup = document.getElementById("customizer-spice-group");
+  const sidesGroup = document.getElementById("customizer-sides-group");
+  const toppingsGroup = document.getElementById("customizer-toppings-group");
+
+  // Reset form elements
+  form.reset();
+
+  // Dynamic configuration based on Category
+  if (category === "drinks" || category === "desserts") {
+    // Customize label and inputs for Sweetness instead of Spice
+    spiceGroup.style.display = "block";
+    spiceGroup.querySelector(".option-label").textContent = "Sweetness Level";
+    const spanElements = spiceGroup.querySelectorAll(".customizer-radio-label span");
+    if (spanElements.length >= 4) {
+      spanElements[0].textContent = "No Sugar";
+      spanElements[1].textContent = "Less Sweet";
+      spanElements[2].textContent = "Regular";
+      spanElements[3].textContent = "Extra Sweet";
+    }
+    // Hide side swapping for drinks/desserts
+    sidesGroup.style.display = "none";
+  } else {
+    // Restore Spice level
+    spiceGroup.style.display = "block";
+    spiceGroup.querySelector(".option-label").textContent = "Spice Level";
+    const spanElements = spiceGroup.querySelectorAll(".customizer-radio-label span");
+    if (spanElements.length >= 4) {
+      spanElements[0].textContent = "Mild";
+      spanElements[1].textContent = "Medium";
+      spanElements[2].textContent = "Hot";
+      spanElements[3].textContent = "Chef's Special (Extra Hot)";
+    }
+    // Show side swapping
+    sidesGroup.style.display = "block";
+  }
+
+  // Update total price display function
+  function calculateTotal() {
+    let total = item.price;
+    const checkedToppings = form.querySelectorAll(".topping-cb:checked");
+    checkedToppings.forEach(cb => {
+      total += parseInt(cb.dataset.price) || 0;
+    });
+    document.getElementById("customizer-total-val").textContent = `₹${total}`;
+  }
+
+  // Bind change listeners for real-time recalculation
+  form.querySelectorAll("input, select").forEach(input => {
+    input.addEventListener("change", calculateTotal);
+  });
+
+  calculateTotal();
+
+  // Close handler
+  const closeBtn = document.getElementById("customizer-close");
+  const closeEvent = () => {
+    modal.style.display = "none";
+    closeBtn.removeEventListener("click", closeEvent);
+  };
+  closeBtn.addEventListener("click", closeEvent);
+
+  // Show Modal
+  modal.style.display = "flex";
+
+  // Form Submit handler
+  const submitEvent = (e) => {
+    e.preventDefault();
+    form.removeEventListener("submit", submitEvent);
+
+    // Read selected choices
+    const spiceOrSweetKey = category === "drinks" || category === "desserts" ? "Sweetness" : "Spice";
+    const selectedSpiceVal = form.querySelector('input[name="spice-level"]:checked')?.value || "Regular/Mild";
+    const selectedSideVal = sidesGroup.style.display !== "none" ? document.getElementById("customizer-side-select").value : "None";
+    
+    const selectedToppings = [];
+    const checkedToppings = form.querySelectorAll(".topping-cb:checked");
+    let extraPrice = 0;
+    checkedToppings.forEach(cb => {
+      selectedToppings.push(cb.value);
+      extraPrice += parseInt(cb.dataset.price) || 0;
+    });
+
+    const calculatedPrice = item.price + extraPrice;
+    
+    // Generate unique ID based on customization to separate items
+    const toppingsSlug = selectedToppings.length ? selectedToppings.join("-") : "none";
+    const customId = `${item.id}-${selectedSpiceVal.toLowerCase().replace(/\s+/g, "-")}-${selectedSideVal.toLowerCase().replace(/\s+/g, "-")}-${toppingsSlug.toLowerCase().replace(/\s+/g, "-")}`;
+
+    const customizedItem = {
+      id: customId,
+      baseId: item.id,
+      title: item.title,
+      price: calculatedPrice,
+      image: item.image,
+      customizations: {
+        spice: `${spiceOrSweetKey}: ${selectedSpiceVal}`,
+        side: selectedSideVal,
+        toppings: selectedToppings
+      }
+    };
+
+    addToCart(customizedItem);
+    modal.style.display = "none";
+  };
+
+  form.addEventListener("submit", submitEvent);
 }

@@ -1276,6 +1276,76 @@
 
     <button id="backToTop" data-i18n="back_to_top">BACK TO TOP ▲</button>
 
+    <!-- Menu Item Customizer Modal -->
+    <div class="customizer-modal" id="customizer-modal" style="display: none;">
+      <div class="customizer-modal-content">
+        <button class="customizer-close" id="customizer-close" aria-label="Close customizer">&times;</button>
+        <div class="customizer-header">
+          <h3 id="customizer-title">Customize Item</h3>
+          <p id="customizer-base-price">Base Price: ₹0</p>
+        </div>
+        <form id="customizer-form">
+          <!-- Spice/Sweetness Selection -->
+          <div class="customizer-option-group" id="customizer-spice-group">
+            <label class="option-label">Spice Level</label>
+            <div class="customizer-options">
+              <label class="customizer-radio-label">
+                <input type="radio" name="spice-level" value="Mild" checked />
+                <span>Mild</span>
+              </label>
+              <label class="customizer-radio-label">
+                <input type="radio" name="spice-level" value="Medium" />
+                <span>Medium</span>
+              </label>
+              <label class="customizer-radio-label">
+                <input type="radio" name="spice-level" value="Hot" />
+                <span>Hot</span>
+              </label>
+              <label class="customizer-radio-label">
+                <input type="radio" name="spice-level" value="Chef Special" />
+                <span>Chef's Special (Extra Hot)</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Sides Swapping Selection -->
+          <div class="customizer-option-group" id="customizer-sides-group">
+            <label class="option-label">Select Side</label>
+            <select id="customizer-side-select">
+              <option value="Default Side">Default Side</option>
+              <option value="Basmati Rice">Basmati Rice</option>
+              <option value="Garlic Naan">Garlic Naan</option>
+              <option value="Fresh Green Salad">Fresh Green Salad</option>
+            </select>
+          </div>
+
+          <!-- Toppings/Extras Selection -->
+          <div class="customizer-option-group" id="customizer-toppings-group">
+            <label class="option-label">Add Extras / Toppings</label>
+            <div class="customizer-checkboxes">
+              <label class="customizer-checkbox-label">
+                <input type="checkbox" class="topping-cb" value="Truffle Butter" data-price="150" />
+                <span>Truffle Butter (+₹150)</span>
+              </label>
+              <label class="customizer-checkbox-label">
+                <input type="checkbox" class="topping-cb" value="Extra Protein" data-price="200" />
+                <span>Extra Protein (+₹200)</span>
+              </label>
+              <label class="customizer-checkbox-label">
+                <input type="checkbox" class="topping-cb" value="Shredded Cheese" data-price="80" />
+                <span>Shredded Cheese (+₹80)</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="customizer-footer">
+            <div class="customizer-total-price">Total: <span id="customizer-total-val">₹0</span></div>
+            <button type="submit" class="btn btn-primary" id="customizer-add-btn">Add to Cart</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
     <script src="script.js"></script>
   </body>
 </html>

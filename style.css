@@ -3464,3 +3464,173 @@ body.light-theme .newsletter-form input {
   }
 }
 
+/* ── Feature 3: Menu Item Customizer Modal ── */
+.customizer-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 3000;
+  background-color: rgba(16, 13, 11, 0.85);
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: opacity 0.3s ease;
+}
+
+.customizer-modal-content {
+  background-color: var(--color-bg-card, #2a2725);
+  border: 1px solid var(--color-border, #3d3835);
+  border-radius: 16px;
+  width: 90%;
+  max-width: 500px;
+  padding: 30px;
+  position: relative;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+  animation: modalReveal 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.15);
+}
+
+@keyframes modalReveal {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.customizer-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: transparent;
+  border: none;
+  color: var(--color-text-muted, #9a958e);
+  font-size: 2rem;
+  cursor: pointer;
+  line-height: 1;
+  transition: color var(--transition, 0.3s ease);
+}
+
+.customizer-close:hover {
+  color: var(--color-primary, #c9a962);
+}
+
+.customizer-header {
+  margin-bottom: 25px;
+  border-bottom: 1px solid var(--color-border, #3d3835);
+  padding-bottom: 15px;
+}
+
+.customizer-header h3 {
+  font-size: 1.8rem;
+  color: var(--color-primary, #c9a962);
+}
+
+#customizer-base-price {
+  font-size: 0.95rem;
+  color: var(--color-text-muted, #9a958e);
+  margin-top: 5px;
+}
+
+.customizer-option-group {
+  margin-bottom: 25px;
+}
+
+.customizer-option-group .option-label {
+  display: block;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--color-primary, #c9a962);
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+
+.customizer-options {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.customizer-radio-label, .customizer-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 15px;
+  border: 1px solid var(--color-border, #3d3835);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all var(--transition, 0.3s ease);
+}
+
+.customizer-radio-label:hover, .customizer-checkbox-label:hover {
+  border-color: var(--color-primary, #c9a962);
+}
+
+.customizer-radio-label input, .customizer-checkbox-label input {
+  accent-color: var(--color-primary, #c9a962);
+  cursor: pointer;
+}
+
+.customizer-radio-label span, .customizer-checkbox-label span {
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.customizer-radio-label:has(input:checked), .customizer-checkbox-label:has(input:checked) {
+  border-color: var(--color-primary, #c9a962);
+  background: rgba(201, 169, 98, 0.1);
+  color: var(--color-primary, #c9a962);
+}
+
+#customizer-side-select {
+  width: 100%;
+  padding: 12px;
+  background: var(--color-bg, #1a1714);
+  border: 1px solid var(--color-border, #3d3835);
+  border-radius: 8px;
+  color: var(--color-text, #f5f2ed);
+  font-family: var(--font-sans);
+  cursor: pointer;
+}
+
+.customizer-checkboxes {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.customizer-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 30px;
+  border-top: 1px solid var(--color-border, #3d3835);
+  padding-top: 20px;
+}
+
+.customizer-total-price {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+#customizer-total-val {
+  color: var(--color-primary, #c9a962);
+  font-size: 1.3rem;
+  font-weight: 700;
+  font-family: var(--font-serif);
+}
+
+.order-item-customizations {
+  font-size: 0.75rem;
+  color: var(--color-text-muted, #9a958e);
+  margin-top: 4px;
+  line-height: 1.3;
+}
+
+
