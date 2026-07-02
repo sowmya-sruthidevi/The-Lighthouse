@@ -607,7 +607,7 @@ function setupIntersectionObserver() {
     }
 
     function isValidName(name) {
-      return /^[A-Za-z\s'-]{3,30}$/.test(name.trim());
+      return /^[\p{L}\p{M}\s'-]{3,30}$/u.test(name.trim());
     }
 
     function isMeaningfulReview(text) {
