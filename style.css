@@ -2091,6 +2091,9 @@ body.light-theme .time-slot-btn.limited .availability {
   .reviews-grid {
     grid-template-columns: 1fr;
   }
+  .menu-items {
+  grid-template-columns: 1fr;
+}
 
   .review-form-wrapper {
     padding: 24px 20px;
