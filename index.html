@@ -227,6 +227,29 @@
           </button>
         </div>
 
+        <!-- Virtual Sommelier Widget -->
+        <div class="sommelier-widget" id="sommelier-widget">
+          <div class="sommelier-container">
+            <div class="sommelier-header">
+              <span class="sommelier-badge">🍷 Virtual Sommelier</span>
+              <h3 class="sommelier-title">Exquisite Beverage Pairings</h3>
+              <p class="sommelier-desc">Select a dish below to discover its recommended vintage wine or premium craft drink pairing.</p>
+            </div>
+            <div class="sommelier-body">
+              <div class="sommelier-selector-group">
+                <label for="sommelier-main-select">Choose your dish:</label>
+                <select id="sommelier-main-select">
+                  <option value="" disabled selected>Select a dish...</option>
+                  <!-- Populated dynamically in script.js -->
+                </select>
+              </div>
+              <div class="sommelier-result" id="sommelier-result" style="display: none;">
+                <!-- Dynamic results rendered here -->
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="menu-content menu-panel active">
           <div class="menu-items">
           <!-- breakfast -->

@@ -1082,6 +1082,7 @@ document.addEventListener('DOMContentLoaded', () => {
   updateOpenStatusBadge();
   setupSeatingMap();
   setupGiftCardCustomizer();
+  setupVirtualSommelier();
 
   if (typeof i18next !== 'undefined') {
     i18next
@@ -1496,4 +1497,110 @@ function openCustomizerModal(item, category) {
   };
 
   form.addEventListener("submit", submitEvent);
+}
+
+// =============================================
+// Feature 4: Virtual Sommelier
+// =============================================
+function setupVirtualSommelier() {
+  const selectEl = document.getElementById("sommelier-main-select");
+  const resultEl = document.getElementById("sommelier-result");
+
+  if (!selectEl || !resultEl) return;
+
+  // Pairing database
+  const pairings = {
+    "paneer-butter-masala": {
+      name: "Saffron Mango Lassi (Premium)",
+      desc: "Cooling traditional lassi blended with premium Alphonso mango pulp and pure Kashmiri saffron threads.",
+      notes: "Sweetness and milk fat balance the richness of paneer gravy perfectly.",
+      price: 180,
+      image: "./images/drinks/mango-lassi.jpg"
+    },
+    "chicken-keema-dosa": {
+      name: "Coastal Craft IPA Beer",
+      desc: "Local citrus-forward craft India Pale Ale with crisp aromatic hops.",
+      notes: "Bitterness contrasts beautifully with spiced minced chicken keema masala.",
+      price: 250,
+      image: "./images/drinks/ipa-beer.jpg"
+    },
+    "masala-dosa": {
+      name: "Traditional South Indian Filter Coffee",
+      desc: "Premium chicory blend coffee brewed in brass filter, served with frothy milk.",
+      notes: "Deep roasted chicory notes complement the crispy lentil batter and potato spice.",
+      price: 110,
+      image: "./images/drinks/filter-coffee.jpg"
+    },
+    "idli-sambar": {
+      name: "Fresh Coconut Lime Water",
+      desc: "Chilled tender coconut water with a squeeze of fresh Key lime and mint.",
+      notes: "Light and hydrating, matches the clean steamed texture of idli.",
+      price: 90,
+      image: "./images/drinks/coconut-lime.jpg"
+    }
+  };
+
+  const defaultPairing = {
+    name: "The Lighthouse Reserve Shiraz",
+    desc: "Premium oak-aged red wine with notes of dark plum, vanilla, and peppercorn.",
+    notes: "Deep fruit complexity that complements rich tandoori dishes and grilled entrees.",
+    price: 490,
+    image: "./images/drinks/reserve-wine.jpg"
+  };
+
+  // Populate options dynamically from main menu items
+  const menuItems = document.querySelectorAll(".menu-item");
+  const addedIds = new Set();
+
+  menuItems.forEach(item => {
+    const title = item.querySelector("h3")?.textContent.trim() || "";
+    const category = item.dataset.category || "";
+    if (!title || category === "drinks" || category === "desserts") return;
+
+    const id = title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+    if (addedIds.has(id)) return;
+    addedIds.add(id);
+
+    const opt = document.createElement("option");
+    opt.value = id;
+    opt.textContent = title;
+    selectEl.appendChild(opt);
+  });
+
+  // Handle Select Change
+  selectEl.addEventListener("change", () => {
+    const selectedId = selectEl.value;
+    const pairing = pairings[selectedId] || defaultPairing;
+
+    resultEl.innerHTML = `
+      <div class="sommelier-pairing-card">
+        <div class="pairing-info">
+          <span class="pairing-label">Perfect Pairing Recommendation</span>
+          <h4 id="pairing-name">${pairing.name}</h4>
+          <p id="pairing-desc">${pairing.desc}</p>
+          <div class="tasting-notes">
+            <strong>Tasting Notes:</strong> <span id="pairing-notes">${pairing.notes}</span>
+          </div>
+          <div class="pairing-price-row">
+            <span class="pairing-price" id="pairing-price">₹${pairing.price}</span>
+            <button type="button" class="btn btn-primary btn-sm" id="sommelier-add-btn">Add Pairing to Cart</button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    resultEl.style.display = "block";
+
+    // Bind Add to Cart
+    document.getElementById("sommelier-add-btn")?.addEventListener("click", () => {
+      const drinkItem = {
+        id: `pairing-${pairing.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
+        title: pairing.name,
+        price: pairing.price,
+        image: pairing.image || "./images/drinks.jpg"
+      };
+      addToCart(drinkItem);
+      showReservationToast("success", `Added ${pairing.name} pairing to your cart!`);
+    });
+  });
 }
