@@ -42,6 +42,7 @@
           <li><a href="#reservation" class="nav-link" data-section="reservation" data-i18n="nav.reservation">Reservations</a></li>
           <li><a href="#reviews" class="nav-link" data-section="reviews" data-i18n="nav.reviews">Reviews</a></li>
           <li><a href="#giftcards" class="nav-link" data-section="giftcards" data-i18n="nav.giftcards">Gift Cards</a></li>
+          <li><a href="#loyalty" class="nav-link" data-section="loyalty" data-i18n="nav.loyalty">Lighthouse Club</a></li>
           <li><a href="#location" class="nav-link" data-section="location" data-i18n="nav.location">Location</a></li>
           <li class="mobile-only nav-lang-item">
             <div class="language-selector-container">
@@ -1050,6 +1051,90 @@
               <p class="success-msg">🎉 Gift Card Purchased Successfully!</p>
               <button id="download-voucher-btn" class="btn btn-outline btn-full">🖨️ Print & Download Voucher</button>
             </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Loyalty Club Section -->
+    <section class="loyalty-section" id="loyalty">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-label" data-i18n="loyalty.label">Exclusive Club</span>
+          <h2 class="section-title" data-i18n="loyalty.title">The Lighthouse Club</h2>
+          <p class="section-desc" data-i18n="loyalty.subtitle" style="max-width: 600px; margin: 0 auto; color: var(--color-text-muted);">Join our premium club to earn points on reservations and reviews, and unlock exclusive dining rewards.</p>
+        </div>
+
+        <div class="loyalty-grid">
+          <!-- Auth Card: Registration & Login -->
+          <div class="loyalty-card" id="loyalty-auth-card">
+            <h3>Join the Elite</h3>
+            <p style="font-size: 0.9rem; color: var(--color-text-muted); margin-bottom: 20px;">Enter your details to register or sign in to your club account.</p>
+            <form id="loyalty-auth-form">
+              <div class="form-group full-width">
+                <label for="loyalty-email">Email Address</label>
+                <input type="email" id="loyalty-email" placeholder="you@example.com" required />
+              </div>
+              <div class="form-group full-width" style="margin-top: 15px;">
+                <label for="loyalty-name">Full Name (New Members)</label>
+                <input type="text" id="loyalty-name" placeholder="John Doe" />
+              </div>
+              <button type="submit" class="btn btn-primary btn-full" style="margin-top: 20px;">Access Club Portal</button>
+            </form>
+          </div>
+
+          <!-- Dashboard Card (Visible when logged in) -->
+          <div class="loyalty-card" id="loyalty-dashboard-card" style="display: none;">
+            <div class="dashboard-header">
+              <div class="member-info">
+                <span class="member-tier">PLATINUM MEMBER</span>
+                <h3 id="member-display-name">Guest Name</h3>
+              </div>
+              <div class="points-badge">
+                <span class="points-val" id="member-points-val">0</span>
+                <span class="points-lbl">POINTS</span>
+              </div>
+            </div>
+
+            <!-- Earn points guides -->
+            <div class="earn-info" style="margin-top: 20px;">
+              <h4 style="font-family: var(--font-serif); font-size: 1.15rem; color: var(--color-primary);">How to Earn Points:</h4>
+              <ul style="list-style-type: none; padding-left: 0; margin-top: 8px; font-size: 0.9rem;">
+                <li style="margin-bottom: 5px;">📅 <strong>+100 points</strong> per successful Table Booking</li>
+                <li>⭐ <strong>+50 points</strong> per Review Shared</li>
+              </ul>
+            </div>
+
+            <!-- Rewards Redemption Section -->
+            <div class="redemption-section" style="margin-top: 25px;">
+              <h4 style="font-family: var(--font-serif); font-size: 1.15rem; color: var(--color-primary); margin-bottom: 12px;">Redeem Reward Vouchers:</h4>
+              <div class="rewards-options">
+                <div class="reward-item">
+                  <div class="reward-details">
+                    <h5>₹500 Discount Code</h5>
+                    <p style="font-size: 0.8rem; color: var(--color-text-muted);">Cost: 200 Points</p>
+                  </div>
+                  <button type="button" class="btn btn-outline btn-sm redeem-btn" data-cost="200" data-reward="₹500 Discount" data-code="LHC-500D">Redeem</button>
+                </div>
+                <div class="reward-item" style="margin-top: 15px;">
+                  <div class="reward-details">
+                    <h5>₹1,500 Discount Code</h5>
+                    <p style="font-size: 0.8rem; color: var(--color-text-muted);">Cost: 500 Points</p>
+                  </div>
+                  <button type="button" class="btn btn-outline btn-sm redeem-btn" data-cost="500" data-reward="₹1,500 Discount" data-code="LHC-1500D">Redeem</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Active discount codes display -->
+            <div class="active-codes" id="active-codes-container" style="display: none; margin-top: 20px; border-top: 1px solid var(--color-border); padding-top: 15px;">
+              <h4 style="font-family: var(--font-serif); font-size: 1.15rem; color: var(--color-primary);">Your Active Vouchers:</h4>
+              <div id="vouchers-list" style="margin-top: 10px;">
+                <!-- Populated dynamically -->
+              </div>
+            </div>
+
+            <button type="button" class="btn btn-outline btn-sm" id="loyalty-logout-btn" style="margin-top: 25px; width: 100%;">Sign Out</button>
           </div>
         </div>
       </div>

@@ -3821,5 +3821,129 @@ body.light-theme .newsletter-form input {
   font-size: 0.8rem;
 }
 
+/* ── Feature 5: Guest Loyalty Rewards & Referral Portal ── */
+.loyalty-section {
+  padding: 80px 0;
+  background-color: var(--color-bg, #1a1714);
+  border-top: 1px solid var(--color-border, #3d3835);
+}
+
+.loyalty-grid {
+  max-width: 600px;
+  margin: 40px auto 0 auto;
+  width: 100%;
+}
+
+.loyalty-card {
+  background-color: var(--color-bg-card, #2a2725);
+  border: 1px solid var(--color-border, #3d3835);
+  border-radius: 12px;
+  padding: 35px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.loyalty-card h3 {
+  font-size: 1.6rem;
+  font-family: var(--font-serif);
+  color: var(--color-primary, #c9a962);
+  margin-bottom: 10px;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--color-border, #3d3835);
+  padding-bottom: 15px;
+  margin-bottom: 20px;
+}
+
+.member-tier {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--color-primary, #c9a962);
+  display: block;
+  margin-bottom: 4px;
+}
+
+#member-display-name {
+  font-size: 1.4rem;
+  color: var(--color-text, #f5f2ed);
+  font-family: var(--font-serif);
+  margin: 0;
+}
+
+.points-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: rgba(201, 169, 98, 0.08);
+  border: 1px solid var(--color-primary, #c9a962);
+  border-radius: 8px;
+  padding: 10px 18px;
+  min-width: 90px;
+}
+
+.points-val {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--color-primary, #c9a962);
+  font-family: var(--font-serif);
+  line-height: 1;
+}
+
+.points-lbl {
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: var(--color-text-muted, #9a958e);
+  margin-top: 3px;
+}
+
+.reward-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--color-bg, #1a1714);
+  border: 1px solid var(--color-border, #3d3835);
+  border-radius: 8px;
+  padding: 15px 20px;
+  transition: all var(--transition, 0.3s ease);
+}
+
+.reward-item:hover {
+  border-color: var(--color-primary, #c9a962);
+}
+
+.reward-details h5 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-text, #f5f2ed);
+  margin-bottom: 2px;
+}
+
+.voucher-code-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: rgba(76, 175, 80, 0.05);
+  border: 1px dashed #4caf50;
+  border-radius: 6px;
+  padding: 10px 15px;
+  margin-bottom: 10px;
+  font-size: 0.85rem;
+}
+
+.voucher-code-item span {
+  font-family: monospace;
+  font-weight: 700;
+  background-color: rgba(76, 175, 80, 0.1);
+  padding: 3px 8px;
+  border-radius: 4px;
+  color: #4caf50;
+}
+
+
 
 

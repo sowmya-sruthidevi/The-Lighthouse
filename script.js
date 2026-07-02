@@ -511,6 +511,7 @@ async function handleFormSubmit(e) {
       const result = await reservationAPI.createReservation(apiData);
       if (result.success) {
         showReservationToast('success', `Reservation confirmed for ${selectedTable}! Check your email for details.`);
+        addLoyaltyPoints(100, "Table Reservation");
         reservationForm.reset();
         updateAvailableTimes();
         submitBtn.textContent = originalText;
@@ -526,6 +527,7 @@ async function handleFormSubmit(e) {
   if (EMAILJS_CONFIG.publicKey === 'YOUR_PUBLIC_KEY' || EMAILJS_CONFIG.publicKey === 'abc123XYZ') {
     await new Promise(r => setTimeout(r, 1200));
     showReservationToast('success', `Thank you, ${formData.guest_name}! We've registered your request for ${formData.guest_count} guest(s) at ${selectedTable} on ${formData.booking_date} at ${formData.booking_time}.`);
+    addLoyaltyPoints(100, "Table Reservation");
     reservationForm.reset();
     updateAvailableTimes();
     submitBtn.textContent = originalText;
@@ -535,6 +537,7 @@ async function handleFormSubmit(e) {
       await emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.guestTemplateId, formData);
       await emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.adminTemplateId, formData);
       showReservationToast('success', `Thank you, ${formData.guest_name}! A confirmation for ${selectedTable} has been sent to ${formData.guest_email}.`);
+      addLoyaltyPoints(100, "Table Reservation");
       reservationForm.reset();
       updateAvailableTimes();
     } catch (err) {
@@ -712,6 +715,8 @@ function setupReviews() {
       selectedRating = 0;
       document.getElementById('review-rating').value = 0;
       starBtns.forEach((s) => s.classList.remove('active'));
+
+      addLoyaltyPoints(50, "Review Shared");
 
       if (reviewMsg) {
         reviewMsg.textContent = typeof i18next !== 'undefined' && i18next.t ? i18next.t('reviews.success_msg') : 'Review submitted successfully!';
@@ -1083,6 +1088,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setupSeatingMap();
   setupGiftCardCustomizer();
   setupVirtualSommelier();
+  setupLoyaltyClub();
 
   if (typeof i18next !== 'undefined') {
     i18next
@@ -1603,4 +1609,168 @@ function setupVirtualSommelier() {
       showReservationToast("success", `Added ${pairing.name} pairing to your cart!`);
     });
   });
+}
+
+// =============================================
+// Feature 5: Guest Loyalty Rewards & Referral
+// =============================================
+function setupLoyaltyClub() {
+  const authCard = document.getElementById("loyalty-auth-card");
+  const dashboardCard = document.getElementById("loyalty-dashboard-card");
+  const authForm = document.getElementById("loyalty-auth-form");
+  const logoutBtn = document.getElementById("loyalty-logout-btn");
+  const nameInput = document.getElementById("loyalty-name");
+  const emailInput = document.getElementById("loyalty-email");
+
+  const displayNameEl = document.getElementById("member-display-name");
+  const pointsValEl = document.getElementById("member-points-val");
+  const activeCodesContainer = document.getElementById("active-codes-container");
+  const vouchersList = document.getElementById("vouchers-list");
+  const redeemButtons = document.querySelectorAll(".redeem-btn");
+
+  if (!authForm || !dashboardCard) return;
+
+  function getMemberDb() {
+    return JSON.parse(localStorage.getItem("lighthouse_loyalty_db") || "{}");
+  }
+
+  function saveMemberDb(db) {
+    localStorage.setItem("lighthouse_loyalty_db", JSON.stringify(db));
+  }
+
+  function getLoggedInMember() {
+    return JSON.parse(localStorage.getItem("lighthouse_loyalty_member"));
+  }
+
+  function setLoggedInMember(member) {
+    localStorage.setItem("lighthouse_loyalty_member", JSON.stringify(member));
+    // update db too
+    const db = getMemberDb();
+    db[member.email] = member;
+    saveMemberDb(db);
+  }
+
+  function renderDashboard() {
+    const member = getLoggedInMember();
+    if (!member) {
+      authCard.style.display = "block";
+      dashboardCard.style.display = "none";
+      return;
+    }
+
+    authCard.style.display = "none";
+    dashboardCard.style.display = "block";
+
+    displayNameEl.textContent = member.name;
+    pointsValEl.textContent = member.points;
+
+    // Render Vouchers
+    if (member.vouchers && member.vouchers.length > 0) {
+      activeCodesContainer.style.display = "block";
+      vouchersList.innerHTML = member.vouchers.map(v => `
+        <div class="voucher-code-item">
+          <div>
+            <strong>${v.reward}</strong> Code:
+          </div>
+          <span>${v.code}</span>
+        </div>
+      `).join("");
+    } else {
+      activeCodesContainer.style.display = "none";
+    }
+  }
+
+  // Handle Login / Registration
+  authForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const email = emailInput.value.trim().toLowerCase();
+    const name = nameInput.value.trim();
+
+    const db = getMemberDb();
+    let member = db[email];
+
+    if (member) {
+      // Existing member login
+      showReservationToast("success", `Welcome back, ${member.name}!`);
+    } else {
+      // New registration - give a welcome bonus of 100 points!
+      member = {
+        email,
+        name: name || "Valued Club Member",
+        points: 100,
+        vouchers: []
+      };
+      showReservationToast("success", `Thank you for joining the Club, ${member.name}! You have been awarded 100 Welcome Points!`);
+    }
+
+    setLoggedInMember(member);
+    renderDashboard();
+  });
+
+  // Handle Logout
+  logoutBtn?.addEventListener("click", () => {
+    localStorage.removeItem("lighthouse_loyalty_member");
+    renderDashboard();
+  });
+
+  // Handle Rewards Redemption
+  redeemButtons.forEach(btn => {
+    btn.addEventListener("click", () => {
+      const cost = parseInt(btn.dataset.cost) || 0;
+      const reward = btn.dataset.reward;
+      const baseCode = btn.dataset.code;
+
+      const member = getLoggedInMember();
+      if (!member) {
+        showReservationToast("error", "Please sign in to redeem rewards!");
+        return;
+      }
+
+      if (member.points < cost) {
+        showReservationToast("error", `Insufficient points! You need ${cost} points to redeem this reward.`);
+        return;
+      }
+
+      // Deduct points and generate unique reward code
+      member.points -= cost;
+      const uniqueSuffix = Math.floor(1000 + Math.random() * 9000);
+      const generatedCode = `${baseCode}-${uniqueSuffix}`;
+      
+      if (!member.vouchers) member.vouchers = [];
+      member.vouchers.push({
+        reward,
+        code: generatedCode
+      });
+
+      setLoggedInMember(member);
+      renderDashboard();
+      showReservationToast("success", `Successfully redeemed ${reward}! Use code ${generatedCode} at checkout.`);
+    });
+  });
+
+  // Initial render
+  renderDashboard();
+}
+
+function addLoyaltyPoints(points, reason) {
+  const memberStr = localStorage.getItem("lighthouse_loyalty_member");
+  if (!memberStr) return;
+  try {
+    const member = JSON.parse(memberStr);
+    member.points += points;
+    
+    // Save state
+    localStorage.setItem("lighthouse_loyalty_member", JSON.stringify(member));
+    const db = JSON.parse(localStorage.getItem("lighthouse_loyalty_db") || "{}");
+    db[member.email] = member;
+    localStorage.setItem("lighthouse_loyalty_db", JSON.stringify(db));
+
+    // Update UI if present
+    const pointsValEl = document.getElementById("member-points-val");
+    if (pointsValEl) pointsValEl.textContent = member.points;
+    
+    showReservationToast("success", `🎉 Club Bonus: +${points} Points! (${reason})`);
+  } catch (e) {
+    console.error(e);
+  }
 }
