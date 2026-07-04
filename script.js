@@ -667,6 +667,9 @@ async function handleFormSubmit(e) {
       const apiData = { date: dateVal, time: timeVal, guests: guestsVal, specialRequests: structuredRequests };
       const result = await reservationAPI.createReservation(apiData);
       if (result.success) {
+        showReservationToast('success', `Reservation confirmed for ${selectedTable}! Check your email for details.`);
+        addLoyaltyPoints(100, "Table Reservation");
+        showReservationSuccessModal(dateVal, timeVal, guestsVal);
         showReservationToast('success', `Reservation confirmed for ${selectedTable || formData.guest_count + ' guest(s)'}! Check your email for details.`);
         if (typeof addLoyaltyPoints === 'function') addLoyaltyPoints(100, "Table Reservation");
         reservationForm.reset();
@@ -684,12 +687,31 @@ async function handleFormSubmit(e) {
   if (typeof emailjs === 'undefined' || EMAILJS_CONFIG.publicKey === 'YOUR_PUBLIC_KEY' || EMAILJS_CONFIG.publicKey === 'abc123XYZ') {
     console.warn('[EmailJS] Not configured — running in demo mode.');
     await new Promise(r => setTimeout(r, 1200));
+    showReservationToast('success', `Thank you, ${formData.guest_name}! We've registered your request for ${formData.guest_count} guest(s) at ${selectedTable} on ${formData.booking_date} at ${formData.booking_time}.`);
+    addLoyaltyPoints(100, "Table Reservation");
+    showReservationSuccessModal(dateVal, timeVal, guestsVal);
     showReservationToast('success', `Thank you, ${formData.guest_name}! We've registered your request for ${formData.guest_count} guest(s) at ${selectedTable || 'your table'} on ${formData.booking_date} at ${formData.booking_time}.`);
     if (typeof addLoyaltyPoints === 'function') addLoyaltyPoints(100, "Table Reservation");
     reservationForm.reset();
     updateAvailableTimes();
     submitBtn.textContent = originalText;
     submitBtn.disabled = false;
+  } else {
+    try {
+      await emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.guestTemplateId, formData);
+      await emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.adminTemplateId, formData);
+      showReservationToast('success', `Thank you, ${formData.guest_name}! A confirmation for ${selectedTable} has been sent to ${formData.guest_email}.`);
+      addLoyaltyPoints(100, "Table Reservation");
+      showReservationSuccessModal(dateVal, timeVal, guestsVal);
+      reservationForm.reset();
+      updateAvailableTimes();
+    } catch (err) {
+      console.error('[EmailJS] Error:', err);
+      showReservationToast('error', 'We couldn\'t send your confirmation email. Please call us at (555) 123-4567.');
+    } finally {
+      submitBtn.textContent = originalText;
+      submitBtn.disabled = false;
+    }
     return;
   }
 
@@ -1942,6 +1964,140 @@ function setupSearchSuggestions() {
     chip.addEventListener("click", () => {
       searchInput.value = chip.dataset.query;
       searchInput.dispatchEvent(new Event("input"));
+// Feature 9: Reservation Success & Calendar Integration
+// =============================================
+function showReservationSuccessModal(date, time, guests) {
+  const modal = document.getElementById("reservation-success-modal");
+  const dateEl = document.getElementById("summary-date");
+  const timeEl = document.getElementById("summary-time");
+  const guestsEl = document.getElementById("summary-guests");
+  const googleBtn = document.getElementById("googleCalBtn");
+  const icsBtn = document.getElementById("icsCalBtn");
+  const closeBtn = document.getElementById("closeSuccessModal");
+
+  if (!modal) return;
+
+  if (dateEl) dateEl.textContent = date;
+  if (timeEl) timeEl.textContent = time;
+  if (guestsEl) guestsEl.textContent = guests + " Guest(s)";
+
+  // Format Date for iCal / Google Cal
+  const startDateTime = new Date(`${date}T${time}:00`);
+  const finalStart = isNaN(startDateTime.getTime()) ? new Date() : startDateTime;
+  const finalEnd = new Date(finalStart.getTime() + 2 * 60 * 60 * 1000); // 2 hours
+
+  const formatTime = (dt) => dt.toISOString().replace(/-|:|\.\d\d\d/g, "");
+
+  // Google Calendar URL
+  const googleUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=Table+Reservation+-+The+Lighthouse&dates=${formatTime(finalStart)}/${formatTime(finalEnd)}&details=Table+reservation+confirmed+for+${guests}+guests.+We+look+forward+to+serving+you.&location=123+Harbor+View+Drive,+Coastal+City,+CA`;
+  
+  if (googleBtn) {
+    googleBtn.onclick = () => window.open(googleUrl, "_blank");
+  }
+
+  // iCalendar (.ics) Download
+  if (icsBtn) {
+    icsBtn.onclick = () => {
+      const icsContent = `BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//The Lighthouse//NONSGML Table Reservation//EN
+BEGIN:VEVENT
+UID:${Date.now()}@thelighthouse.com
+DTSTAMP:${formatTime(new Date())}
+DTSTART:${formatTime(finalStart)}
+DTEND:${formatTime(finalEnd)}
+SUMMARY:Table Reservation - The Lighthouse
+DESCRIPTION:Table reservation confirmed for ${guests} guests.
+LOCATION:123 Harbor View Drive, Coastal City, CA
+END:VEVENT
+END:VCALENDAR`;
+
+      const blob = new Blob([icsContent], { type: "text/calendar;charset=utf-8" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `lighthouse_reservation_${date}.ics`;
+      link.click();
+    };
+  }
+
+  if (closeBtn) {
+    closeBtn.onclick = () => {
+      modal.style.display = "none";
+    };
+  }
+
+  window.onclick = (e) => {
+    if (e.target === modal) {
+      modal.style.display = "none";
+    }
+  };
+
+  modal.style.display = "block";
+// Feature 11: Scroll Reveal & Autoplay
+// =============================================
+function setupIntersectionObserver() {
+  const reveals = document.querySelectorAll(".reveal");
+  if (!reveals.length) return;
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add("active");
+        observer.unobserve(entry.target);
+      }
+    });
+  }, {
+    threshold: 0.1,
+    rootMargin: "0px 0px -50px 0px"
+  });
+
+  reveals.forEach((el) => observer.observe(el));
+}
+
+function setupAutoScroll() {
+  const grid = document.getElementById("reviews-grid");
+  if (!grid) return;
+
+  let autoplayTimer = null;
+
+  function startAutoplay() {
+    autoplayTimer = setInterval(() => {
+      const maxScroll = grid.scrollWidth - grid.clientWidth;
+      if (grid.scrollLeft >= maxScroll - 10) {
+        grid.scrollTo({ left: 0, behavior: "smooth" });
+      } else {
+        grid.scrollBy({ left: 320, behavior: "smooth" });
+      }
+    }, 4000);
+  }
+
+  function stopAutoplay() {
+    if (autoplayTimer) {
+      clearInterval(autoplayTimer);
+      autoplayTimer = null;
+    }
+  }
+
+  const isScrollable = () => grid.scrollWidth > grid.clientWidth;
+
+  if (isScrollable()) {
+    startAutoplay();
+  }
+
+  window.addEventListener("resize", () => {
+    stopAutoplay();
+    if (isScrollable()) {
+      startAutoplay();
+    }
+  });
+
+  grid.addEventListener("mouseenter", stopAutoplay);
+  grid.addEventListener("mouseleave", () => {
+    if (isScrollable()) startAutoplay();
+  });
+  grid.addEventListener("touchstart", stopAutoplay, { passive: true });
+  grid.addEventListener("touchend", () => {
+    if (isScrollable()) startAutoplay();
 // Feature 6: Interactive FAQ Accordion
 // =============================================
 function setupFaqAccordion() {
