@@ -328,6 +328,13 @@ function getActiveDiet() {
 function filterMenuItems(filter = 'all', searchText = '', diet = 'all') {
   const menuItems = document.querySelectorAll('.menu-item');
   let visibleCount = 0;
+  const searchText = menuSearch ? menuSearch.value.trim().toLowerCase() : "";
+
+  menuItems.forEach((item) => {
+    const h3 = item.querySelector('h3');
+    const itemName = h3 ? h3.textContent.toLowerCase() : "";
+    const category = item.dataset.category || "";
+    const type = item.dataset.type || item.dataset.diet || "all";
   const searchLower = searchText.toLowerCase();
 
   menuItems.forEach((item) => {
@@ -338,6 +345,19 @@ function filterMenuItems(filter = 'all', searchText = '', diet = 'all') {
     const matchesSearch = itemName.includes(searchLower);
     const matchesFilter = filter === 'all' || category === filter;
     const matchesDiet = diet === 'all' || itemDiet === diet;
+
+    if (h3) {
+      if (!h3.dataset.original) {
+        h3.dataset.original = h3.innerHTML;
+      }
+      const originalText = h3.dataset.original;
+      if (searchText) {
+        const regex = new RegExp(`(${searchText})`, 'gi');
+        h3.innerHTML = originalText.replace(regex, '<span class="search-highlight">$1</span>');
+      } else {
+        h3.innerHTML = originalText;
+      }
+    }
 
     // Use both class manipulation (from HEAD) and display toggle (from main) for robustness
     if (matchesSearch && matchesFilter && matchesDiet) {
@@ -1336,6 +1356,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setupGiftCardCustomizer();
   setupVirtualSommelier();
   setupLoyaltyClub();
+  setupSearchSuggestions();
   setupFaqAccordion();
 
   if (typeof i18next !== 'undefined') {
@@ -1931,6 +1952,18 @@ function addLoyaltyPoints(points, reason) {
 }
 
 // =============================================
+// Feature 10: Search Suggestions Handler
+// =============================================
+function setupSearchSuggestions() {
+  const chips = document.querySelectorAll(".suggestion-chip");
+  const searchInput = document.getElementById("menu-search");
+
+  if (!chips.length || !searchInput) return;
+
+  chips.forEach(chip => {
+    chip.addEventListener("click", () => {
+      searchInput.value = chip.dataset.query;
+      searchInput.dispatchEvent(new Event("input"));
 // Feature 9: Reservation Success & Calendar Integration
 // =============================================
 function showReservationSuccessModal(date, time, guests) {
