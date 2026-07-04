@@ -1088,6 +1088,265 @@ function renderOrderState() {
         </div>
       `).join('');
     }
+  }
+
+  if (favoriteItemsEl) {
+    if (favorites.length === 0) {
+      favoriteItemsEl.innerHTML = '<p class="order-empty">No favorites added yet.</p>';
+    } else {
+      favoriteItemsEl.innerHTML = favorites.map(item => `
+        <div class="order-item">
+          <img src="${item.image}" alt="${item.title}" class="order-item-img">
+          <div class="order-item-details">
+            <h4>${item.title}</h4>
+            <p>\u20B9${item.price}</p>
+          </div>
+          <button class="menu-action-btn favorite-btn active" style="margin-left:auto;" onclick="removeFavorite('${item.id}')">\u2665</button>
+        </div>
+      `).join('');
+    }
+  }
+
+  document.querySelectorAll(".favorite-btn").forEach((btn) => {
+    const isFavorite = favorites.some((item) => item.id === btn.dataset.id);
+    btn.classList.toggle("active", isFavorite);
+    btn.textContent = isFavorite ? "\u2665" : "\u2661";
+  });
+}
+
+// ── 3D Card flip for touch devices ──
+function handleCardFlip() {
+  const cards = document.querySelectorAll('.food-card-3d');
+  if (isTouchDevice) {
+    cards.forEach((card) => {
+      card.addEventListener('click', function (e) {
+        if (e.target.closest('a') || e.target.closest('button')) return;
+        this.classList.toggle('flipped');
+      });
+    });
+  }
+}
+
+document.addEventListener('click', function (e) {
+  if (!e.target.closest('.food-card-3d')) {
+    document.querySelectorAll('.food-card-3d.flipped').forEach((card) => {
+      card.classList.remove('flipped');
+    });
+  }
+});
+
+// ── Skeletons ──
+function initSkeletonLoaders() {
+  const cards = document.querySelectorAll(".food-card");
+  cards.forEach((card) => {
+    const img = card.querySelector("img");
+    if (!img) return;
+
+    img.classList.add("image-hidden");
+    const revealImage = () => {
+      img.classList.remove("image-hidden");
+      img.classList.add("image-loaded");
+    };
+
+    if (img.complete && img.naturalWidth > 0) {
+      revealImage();
+    } else {
+      img.addEventListener("load", revealImage, { once: true });
+      img.addEventListener("error", revealImage, { once: true });
+    }
+  });
+}
+
+// ── PDF menu download ──
+function loadHtml2Pdf() {
+  return new Promise((resolve, reject) => {
+    if (typeof html2pdf !== 'undefined') {
+      resolve();
+      return;
+    }
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+    script.onload = resolve;
+    script.onerror = reject;
+    document.head.appendChild(script);
+  });
+}
+
+function showLoadingOverlay() {
+  const overlay = document.createElement('div');
+  overlay.className = 'pdf-loading';
+  overlay.id = 'pdfLoading';
+  overlay.innerHTML = `
+    <div class="spinner"></div>
+    <p>Generating your menu PDF...</p>
+    <p style="font-size: 0.9rem; color: rgba(255,255,255,0.7); margin-top: 10px;">Please wait</p>
+  `;
+  document.body.appendChild(overlay);
+}
+
+function hideLoadingOverlay() {
+  const overlay = document.getElementById('pdfLoading');
+  if (overlay) overlay.remove();
+}
+
+const downloadBtn = document.getElementById('downloadMenuPDF');
+if (downloadBtn) {
+  downloadBtn.addEventListener('click', async () => {
+    showLoadingOverlay();
+    try {
+      await loadHtml2Pdf();
+      const element = document.getElementById('menu');
+      const opt = {
+        margin:       10,
+        filename:     'The_Lighthouse_Menu.pdf',
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#1a1714' },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+      await html2pdf().set(opt).from(element).save();
+    } catch (e) {
+      console.error('PDF generation error:', e);
+      alert('Could not generate PDF. Please try again.');
+    } finally {
+      hideLoadingOverlay();
+    }
+  });
+}
+
+// ── Display menu category count ──
+function displayCategoryCount() {
+  const categoryBtns = document.querySelectorAll('.filter-btn:not([data-filter="all"])');
+  const countEl = document.getElementById('menu-category-count');
+  if (countEl) countEl.textContent = categoryBtns.length + ' Menu Categories Available';
+}
+
+// ── Open / Closed badge ──
+function updateOpenStatusBadge() {
+  const sessions = [
+    { name: 'Breakfast', open: [7, 0],  close: [11, 0]  },
+    { name: 'Lunch',     open: [11, 30], close: [15, 0]  },
+    { name: 'Dinner',    open: [17, 0],  close: [23, 0]  },
+    { name: 'Bar',       open: [11, 0],  close: [24, 0]  },
+  ];
+
+  function getOpenSession() {
+    const now = new Date();
+    const h = now.getHours();
+    const m = now.getMinutes();
+    const mins = h * 60 + m;
+    return sessions.find(s => {
+      const openMins  = s.open[0]  * 60 + s.open[1];
+      const closeMins = s.close[0] * 60 + s.close[1];
+      return mins >= openMins && mins < closeMins;
+    }) || null;
+  }
+
+  function render() {
+    const badge = document.getElementById('open-status-badge');
+    if (!badge) return;
+    const session = getOpenSession();
+    if (session) {
+      badge.className = 'status-badge status-badge--open';
+      badge.textContent = `Open — ${session.name}`;
+      if (typeof i18next !== 'undefined' && i18next.t) {
+        badge.textContent = `${i18next.t('location.open') || 'Open'} — ${i18next.t('location.' + session.name.toLowerCase()) || session.name}`;
+      }
+    } else {
+      badge.className = 'status-badge status-badge--closed';
+      badge.textContent = 'Closed';
+      if (typeof i18next !== 'undefined' && i18next.t) {
+        badge.textContent = i18next.t('location.closed') || 'Closed';
+      }
+    }
+  }
+
+  render();
+  setInterval(render, 60000);
+}
+
+// ── Translate UI Content ──
+function updateContent() {
+  if (typeof i18next === 'undefined' || !i18next.t) return;
+  
+  document.querySelectorAll("[data-i18n]").forEach((elem) => {
+    const key = elem.getAttribute("data-i18n");
+    elem.textContent = i18next.t(key);
+  });
+
+  document.querySelectorAll("[data-i18n-placeholder]").forEach((elem) => {
+    const key = elem.getAttribute("data-i18n-placeholder");
+    elem.setAttribute("placeholder", i18next.t(key));
+  });
+
+  document.querySelectorAll("[data-i18n-title]").forEach((elem) => {
+    const key = elem.getAttribute("data-i18n-title");
+    elem.setAttribute("title", i18next.t(key));
+  });
+
+  const noResults = document.querySelector(".no-results");
+  if (noResults) {
+    noResults.textContent = i18next.t('menu.no_results');
+  }
+
+  const dietNoResults = document.querySelectorAll(".diet-no-results");
+  dietNoResults.forEach((el) => {
+    el.textContent = i18next.t('menu.diet_no_results');
+  });
+
+  renderReviews();
+}
+
+// ── Initialise page ──
+document.addEventListener('DOMContentLoaded', () => {
+  handleScroll();
+  setReservationDateRange();
+  updateAvailableTimes();
+  setupThemeToggle();
+  setupIntersectionObserver();
+  setupAutoScroll();
+  setupReviews();
+  setupOrderFeatures();
+  handleCardFlip();
+  initSkeletonLoaders();
+  displayCategoryCount();
+  updateOpenStatusBadge();
+  setupSeatingMap();
+  setupGiftCardCustomizer();
+  setupVirtualSommelier();
+  setupLoyaltyClub();
+  setupFaqAccordion();
+
+  if (typeof i18next !== 'undefined') {
+    i18next
+      .use(i18nextHttpBackend)
+      .use(i18nextBrowserLanguageDetector)
+      .init({
+        fallbackLng: 'en',
+        supportedLngs: ['en', 'hi', 'gu'],
+        load: 'languageOnly',
+        backend: {
+          loadPath: './locales/{{lng}}/translation.json'
+        },
+        detection: {
+          order: ['localStorage', 'navigator'],
+          caches: ['localStorage']
+        }
+      }, function (err, t) {
+        if (err) return console.error(err);
+
+        const activeLang = i18next.resolvedLanguage || 'en';
+        const langSelector = document.getElementById('languageSelector');
+        if (langSelector) {
+          langSelector.value = activeLang;
+          langSelector.addEventListener('change', (e) => {
+            i18next.changeLanguage(e.target.value, (err, t) => {
+              if (err) return console.error(err);
+              updateContent();
+            });
+          });
+        }
+        updateContent();
+      });
   } else {
     // Fallback Cart Renderer
     const cartList = document.querySelector("#cartView .order-list");
@@ -1650,6 +1909,24 @@ function addLoyaltyPoints(points, reason) {
 }
 
 // =============================================
+// Feature 6: Interactive FAQ Accordion
+// =============================================
+function setupFaqAccordion() {
+  const faqQuestions = document.querySelectorAll(".faq-question");
+  faqQuestions.forEach(question => {
+    question.addEventListener("click", () => {
+      const item = question.parentElement;
+      const isActive = item.classList.contains("active");
+      
+      // Close all other items
+      document.querySelectorAll(".faq-item").forEach(el => el.classList.remove("active"));
+      
+      if (!isActive) {
+        item.classList.add("active");
+      }
+    });
+  });
+}
 // PDF MENU DOWNLOAD
 // =============================================
 function loadHtml2Pdf() {
