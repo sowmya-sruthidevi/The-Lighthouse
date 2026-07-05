@@ -34,6 +34,17 @@ const userSchema = new mongoose.Schema({
     enum: ['user', 'admin', 'staff'],
     default: 'user'
   },
+  // Dietary profile — persisted so menu auto-filters on every visit
+  dietaryPreference: {
+    type: String,
+    enum: ['all', 'veg', 'non-veg'],
+    default: 'all'
+  },
+  allergenAlerts: {
+    type: [String],
+    enum: ['gluten', 'dairy', 'nuts', 'eggs', 'soy', 'shellfish', 'fish'],
+    default: []
+  },
   resetPasswordToken: String,
   resetPasswordExpire: Date,
   createdAt: {

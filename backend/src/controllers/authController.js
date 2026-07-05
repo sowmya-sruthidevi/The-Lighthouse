@@ -13,7 +13,7 @@ const generateToken = (id) => {
 // @access  Public
 exports.register = async (req, res) => {
   try {
-    const { name, email, password, phone } = req.body;
+    const { name, email, password, phone, dietaryPreference, allergenAlerts } = req.body;
 
     // Check if user exists
     const userExists = await User.findOne({ email });
@@ -29,7 +29,9 @@ exports.register = async (req, res) => {
       name,
       email,
       password,
-      phone
+      phone,
+      dietaryPreference: dietaryPreference || 'all',
+      allergenAlerts: allergenAlerts || []
     });
 
     // Generate token
@@ -43,7 +45,9 @@ exports.register = async (req, res) => {
         name: user.name,
         email: user.email,
         phone: user.phone,
-        role: user.role
+        role: user.role,
+        dietaryPreference: user.dietaryPreference,
+        allergenAlerts: user.allergenAlerts
       }
     });
   } catch (error) {
@@ -98,7 +102,9 @@ exports.login = async (req, res) => {
         name: user.name,
         email: user.email,
         phone: user.phone,
-        role: user.role
+        role: user.role,
+        dietaryPreference: user.dietaryPreference,
+        allergenAlerts: user.allergenAlerts
       }
     });
   } catch (error) {
@@ -124,5 +130,22 @@ exports.getMe = async (req, res) => {
       success: false,
       error: error.message
     });
+  }
+};
+
+// @desc    Update dietary profile
+// @route   PATCH /api/auth/me/dietary
+// @access  Private
+exports.updateDietaryProfile = async (req, res) => {
+  try {
+    const { dietaryPreference, allergenAlerts } = req.body;
+    const user = await User.findByIdAndUpdate(
+      req.user.id,
+      { dietaryPreference, allergenAlerts },
+      { new: true, runValidators: true }
+    );
+    res.status(200).json({ success: true, user });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
   }
 };
