@@ -214,6 +214,16 @@ function updateThemeImages(isLight) {
   if (resImg) resImg.src = isLight ? lightImg : darkImg;
 }
 
+// ── Broken Image Fallback Trigger ──
+function setupImageFallbacks() {
+  document.querySelectorAll('.menu-item img, .order-item-img').forEach((img) => {
+    img.onerror = function() {
+      this.onerror = null; // Prevents infinite loop if fallback image fails too
+      this.src = './images/fallback-placeholder.png'; 
+    };
+  });
+}
+
 function setupThemeToggle() {
   if (!themeToggle) return;
 
@@ -1097,6 +1107,9 @@ function renderOrderState() {
     btn.classList.toggle("active", isFavorite);
     btn.textContent = isFavorite ? "\u2665" : "\u2661";
   });
+
+  // Attach error-handling hooks whenever new items are rendered dynamically
+  setupImageFallbacks();
 }
 
 function setupOrderFeatures() {
