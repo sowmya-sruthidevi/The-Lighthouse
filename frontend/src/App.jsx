@@ -4,7 +4,7 @@ import { MenuProvider } from './context/MenuContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
-
+import CustomCursor from "./components/CustomCursor";
 import Home from './pages/Home';
 import Menu from './pages/Menu';
 import Reserve from './pages/Reserve';
@@ -17,6 +17,7 @@ const App = () => {
       <AuthProvider>
         <MenuProvider>
           <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+            <CustomCursor />
             <Navbar />
             <Routes>
               <Route path="/" element={<Home />} />
