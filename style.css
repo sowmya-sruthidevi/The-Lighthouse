@@ -1234,30 +1234,14 @@ body.light-theme .scroll-arrow {
   font-weight: 600;
 }
 
-
 .food-tag.veg {
-  
-  background-color: transparent; 
-  padding: 0;
-  border: none;
+  background-color: rgba(72, 187, 120, 0.15);
+  color: #48bb78;
 }
 
-/* Optional: Add this if you need to align the icon */
-.food-tag.veg img {
-  display: block;
-}
-
-/* Update this block in style.css */
 .food-tag.nonveg {
-  /* Remove the background-color and color lines since you're using an image */
-  background-color: transparent; 
-  padding: 0; /* Adjust padding to fit the icon neatly */
-  border: none;
-}
-
-/* Optional: Add this if you need to align the icon */
-.food-tag.nonveg img {
-  display: block;
+  background-color: rgba(201, 74, 74, 0.15);
+  color: #ff7b7b;
 }
 
 .food-card {
@@ -4002,6 +3986,18 @@ body.light-theme .newsletter-form input {
 
 /* Digital Reservation Ticket Modal */
 .ticket-modal {
+  display: none;
+  position: fixed;
+  z-index: 3000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0,0,0,0.85);
+  backdrop-filter: blur(8px);
+}
+
 /* Table Availability Estimator */
 .availability-estimator {
   padding: 12px 16px;
@@ -4051,6 +4047,8 @@ body.light-theme .newsletter-form input {
 .availability-estimator.low .availability-dot {
   background-color: #c44a4a;
   box-shadow: 0 0 8px #c44a4a;
+}
+
 /* Search Suggestions and Highlighting */
 .suggestion-chip {
   background-color: var(--color-bg-card);
@@ -4071,10 +4069,14 @@ body.light-theme .newsletter-form input {
 }
 
 .search-highlight {
-  background-color: rgba(201, 169, 98, 0.3);
-  color: #ffffff;
-  border-radius: 2px;
-  padding: 0 1px;
+  background-color: rgba(201, 169, 98, 0.45);
+  color: #1a1a1a;
+  border-radius: 3px;
+  padding: 0 2px;
+  font-weight: 600;
+  box-shadow: 0 0 0 1px rgba(201, 169, 98, 0.6);
+}
+
 /* Reservation Success Modal and Calendar Integration */
 .reservation-success-modal {
   display: none;
@@ -4102,6 +4104,16 @@ body.light-theme .newsletter-form input {
 }
 
 .ticket-modal-close {
+  color: var(--color-text-muted);
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: color var(--transition);
+}
+
 .success-modal-content {
   background-color: var(--color-bg-lighter);
   border: 1px solid var(--color-primary);
@@ -4238,6 +4250,9 @@ body.light-theme .newsletter-form input {
     left: 0;
     top: 0;
     width: 100%;
+  }
+}
+
 .success-modal-close:hover {
   color: var(--color-primary);
 }
@@ -4290,6 +4305,8 @@ body.light-theme .newsletter-form input {
   font-size: 1.1rem;
   color: var(--color-text);
   margin-bottom: 10px;
+}
+
 /* Scroll Reveal & Autoplay Styles */
 .reveal {
   opacity: 0;
@@ -4328,6 +4345,8 @@ body.light-theme .newsletter-form input {
   .review-card {
     flex: 0 0 100%;
   }
+}
+
 /* FAQ Section Styles */
 .faq-section {
   padding: 80px 0;
@@ -4404,7 +4423,3 @@ body.light-theme .newsletter-form input {
   font-size: 0.95rem;
   line-height: 1.6;
 }
-
-
-
-
