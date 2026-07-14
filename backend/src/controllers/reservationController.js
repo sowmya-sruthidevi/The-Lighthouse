@@ -112,13 +112,16 @@ exports.createReservation = async (req, res) => {
       status: 'confirmed'
     });
 
-    // Send confirmation email
-    // Send confirmation email (emailService logs if not configured)
-    await emailService.sendReservationConfirmation(req.user.email, {
+    // Send confirmation email asynchronously without blocking the client response
+    emailService.sendReservationConfirmation(req.user.email, {
       date,
       time,
       guests: guestsNum,
       specialRequests: cleanedSpecialRequests
+    }).catch(err => {
+      // Log the error internally so developers can investigate email issues, 
+      // but do not let it crash the reservation success flow.
+      console.error('Email delivery failed for reservation:', reservation._id, err);
     });
 
     res.status(201).json({
