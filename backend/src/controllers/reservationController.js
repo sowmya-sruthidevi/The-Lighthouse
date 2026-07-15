@@ -80,19 +80,21 @@ exports.createReservation = async (req, res) => {
     }
 
     
-    const availableTables = await Table.find({
-      capacity: { $gte: parseInt(guests) },
+    // 1. Get all table IDs that already have a confirmed reservation for this date and time
+    const activeReservations = await Reservation.find({
+      date: new Date(date),
+      time,
+      status: { $ne: 'cancelled' }
+    }).select('table');
+
+    const bookedTableIds = activeReservations.map(res => res.table);
+
+    // 2. Find a single active table of sufficient capacity that is NOT in the booked IDs list
+    const assignedTable = await Table.findOne({
+      _id: { $nin: bookedTableIds },
+      capacity: { $gte: guestsNum },
       isActive: true
     });
-
-    let assignedTable = null;
-    for (const table of availableTables) {
-      const isAvailable = await availabilityService.checkAvailability(table._id, date, time);
-      if (isAvailable) {
-        assignedTable = table;
-        break;
-      }
-    }
 
     if (!assignedTable) {
       return res.status(400).json({
