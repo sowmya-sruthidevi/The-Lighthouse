@@ -50,12 +50,15 @@ exports.createReservation = async (req, res) => {
       return res.status(400).json({ success: false, error: 'Invalid guests count' });
     }
 
-    // Prevent past-date reservations
-    const requestedDate = new Date(date);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    if (requestedDate < today) {
-      return res.status(400).json({ success: false, error: 'Reservation date must be today or in the future' });
+    // Prevent past-date and past-time reservations
+    const requestedDateTime = new Date(`${date}T${time}`);
+    const now = new Date();
+
+    if (Number.isNaN(requestedDateTime.getTime()) || requestedDateTime <= now) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Reservation time slot must be in the future' 
+      });
     }
 
     // Validate user's email
