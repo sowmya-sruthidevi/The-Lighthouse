@@ -129,7 +129,17 @@ exports.deleteMenuItem = async (req, res) => {
 // @access  Public
 exports.getTonightMenu = async (req, res) => {
   try {
-    const hour = new Date().getHours();
+    // 1. Resolve target timezone (client header, query parameter, or standard Asia/Kolkata)
+    const timezone = req.headers['x-timezone'] || req.query.timezone || 'Asia/Kolkata';
+
+    // 2. Format the current time to the target timezone and safely parse the 24-hour value
+    const localHourString = new Intl.DateTimeFormat('en-US', {
+      timeZone: timezone,
+      hour: '2-digit',
+      hour12: false
+    }).format(new Date());
+
+    const hour = parseInt(localHourString, 10);
     let categories;
 
     if (hour < 11) {
