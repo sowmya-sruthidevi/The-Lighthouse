@@ -38,7 +38,11 @@ exports.getMenuItems = async (req, res) => {
       data: menuItems
     });
   } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
+    console.error('Menu Operation Error [getMenuItems]:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'An unexpected server error occurred. Please try again later.' 
+    });
   }
 };
 
@@ -57,7 +61,11 @@ exports.getMenuItem = async (req, res) => {
     }
     res.status(200).json({ success: true, data: item });
   } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
+    console.error('Menu Operation Error [getMenuItem]:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'An unexpected server error occurred. Please try again later.' 
+    });
   }
 };
 
@@ -118,7 +126,11 @@ exports.toggleAvailability = async (req, res) => {
       message: `${item.name} is now ${item.isAvailable ? 'available' : 'unavailable'}`
     });
   } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
+    console.error('Menu Operation Error [toggleAvailability]:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'An unexpected server error occurred. Please try again later.' 
+    });
   }
 };
 
@@ -169,6 +181,10 @@ exports.getTonightMenu = async (req, res) => {
       categories
     });
   } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
+    console.error('Menu Operation Error [getTonightMenu]:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'An unexpected server error occurred. Please try again later.' 
+    });
   }
 };
