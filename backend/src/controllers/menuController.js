@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const MenuItem = require('../models/MenuItem');
 
 // @desc    Get all menu items (with optional filters)
@@ -46,6 +47,10 @@ exports.getMenuItems = async (req, res) => {
 // @access  Public
 exports.getMenuItem = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ success: false, error: 'Invalid menu item ID format' });
+    }
+
     const item = await MenuItem.findById(req.params.id);
     if (!item) {
       return res.status(404).json({ success: false, error: 'Menu item not found' });
@@ -73,6 +78,10 @@ exports.createMenuItem = async (req, res) => {
 // @access  Admin
 exports.updateMenuItem = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ success: false, error: 'Invalid menu item ID format' });
+    }
+
     const item = await MenuItem.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
       runValidators: true
@@ -91,6 +100,10 @@ exports.updateMenuItem = async (req, res) => {
 // @access  Admin
 exports.toggleAvailability = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ success: false, error: 'Invalid menu item ID format' });
+    }
+
     const item = await MenuItem.findById(req.params.id);
     if (!item) {
       return res.status(404).json({ success: false, error: 'Menu item not found' });
@@ -114,6 +127,10 @@ exports.toggleAvailability = async (req, res) => {
 // @access  Admin
 exports.deleteMenuItem = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ success: false, error: 'Invalid menu item ID format' });
+    }
+
     const item = await MenuItem.findByIdAndDelete(req.params.id);
     if (!item) {
       return res.status(404).json({ success: false, error: 'Menu item not found' });
