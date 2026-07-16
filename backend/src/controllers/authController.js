@@ -111,9 +111,10 @@ exports.login = async (req, res) => {
       }
     });
   } catch (error) {
+    console.error('Login Error:', error); // Log internally for debugging
     res.status(500).json({
       success: false,
-      error: error.message
+      error: 'An unexpected server error occurred. Please try again later.'
     });
   }
 };
@@ -129,9 +130,10 @@ exports.getMe = async (req, res) => {
       user
     });
   } catch (error) {
+    console.error('GetMe Error:', error); // Log internally for debugging
     res.status(500).json({
       success: false,
-      error: error.message
+      error: 'An unexpected server error occurred. Please try again later.'
     });
   }
 };
