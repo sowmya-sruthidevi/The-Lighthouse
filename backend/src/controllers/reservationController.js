@@ -50,12 +50,15 @@ exports.createReservation = async (req, res) => {
       return res.status(400).json({ success: false, error: 'Invalid guests count' });
     }
 
-    // Prevent past-date reservations
-    const requestedDate = new Date(date);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    if (requestedDate < today) {
-      return res.status(400).json({ success: false, error: 'Reservation date must be today or in the future' });
+    // Prevent past-date and past-time reservations
+    const requestedDateTime = new Date(`${date}T${time}`);
+    const now = new Date();
+
+    if (Number.isNaN(requestedDateTime.getTime()) || requestedDateTime <= now) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Reservation time slot must be in the future' 
+      });
     }
 
     // Validate user's email
@@ -114,13 +117,16 @@ exports.createReservation = async (req, res) => {
       status: 'confirmed'
     });
 
-    // Send confirmation email
-    // Send confirmation email (emailService logs if not configured)
-    await emailService.sendReservationConfirmation(req.user.email, {
+    // Send confirmation email asynchronously without blocking the client response
+    emailService.sendReservationConfirmation(req.user.email, {
       date,
       time,
       guests: guestsNum,
       specialRequests: cleanedSpecialRequests
+    }).catch(err => {
+      // Log the error internally so developers can investigate email issues, 
+      // but do not let it crash the reservation success flow.
+      console.error('Email delivery failed for reservation:', reservation._id, err);
     });
 
     res.status(201).json({
