@@ -43,8 +43,17 @@ const reservationSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Index for faster queries
+// Index for faster queries and race-condition prevention
 reservationSchema.index({ date: 1, time: 1 });
 reservationSchema.index({ user: 1, status: 1 });
+
+// Enforce unique bookings: A table can only have one active ('confirmed') reservation per date and time slot
+reservationSchema.index(
+  { table: 1, date: 1, time: 1 },
+  { 
+    unique: true, 
+    partialFilterExpression: { status: 'confirmed' } 
+  }
+);
 
 module.exports = mongoose.model('Reservation', reservationSchema);
