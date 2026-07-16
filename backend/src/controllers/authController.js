@@ -111,9 +111,10 @@ exports.login = async (req, res) => {
       }
     });
   } catch (error) {
+    console.error('Login Error:', error); // Log internally for debugging
     res.status(500).json({
       success: false,
-      error: error.message
+      error: 'An unexpected server error occurred. Please try again later.'
     });
   }
 };
@@ -123,19 +124,30 @@ exports.login = async (req, res) => {
 // @access  Private
 exports.getMe = async (req, res) => {
   try {
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({
+        success: false,
+        error: 'Not authorized to access this route'
+      });
+    }
+
     const user = await User.findById(req.user.id);
     res.status(200).json({
       success: true,
       user
     });
   } catch (error) {
+    console.error('GetMe Error:', error); // Log internally for debugging
     res.status(500).json({
       success: false,
-      error: error.message
+      error: 'An unexpected server error occurred. Please try again later.'
     });
   }
 };
 
+// @desc    Update dietary profile
+// @route   PATCH /api/auth/me/dietary
+// @access  Private
 // @desc    Update dietary profile
 // @route   PATCH /api/auth/me/dietary
 // @access  Private
@@ -148,11 +160,7 @@ exports.updateDietaryProfile = async (req, res) => {
       });
     }
 
-    // Dynamically build the update object to ensure partial datasets are safe
-    const fieldsToUpdate = {};
-    if (req.body.dietaryPreference !== undefined) fieldsToUpdate.dietaryPreference = req.body.dietaryPreference;
-    if (req.body.allergenAlerts !== undefined) fieldsToUpdate.allergenAlerts = req.body.allergenAlerts;
-
+    const { dietaryPreference, allergenAlerts } = req.body;
     const user = await User.findByIdAndUpdate(
       req.user.id,
       fieldsToUpdate,
