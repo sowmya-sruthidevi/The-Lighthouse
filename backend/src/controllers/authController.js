@@ -50,13 +50,19 @@ exports.register = async (req, res) => {
         allergenAlerts: user.allergenAlerts
       }
     });
-  } catch (error) {
-    const message = error.message.includes('User validation failed')
-      ? 'Please provide valid registration details and make sure your email and phone are correct.'
-      : 'Unable to create account at the moment. Please try again later.';
+} catch (error) {
+    console.error('Registration Error:', error); // Log internally for visibility
+
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({
+        success: false,
+        error: 'Please provide valid registration details and make sure your email and phone are correct.'
+      });
+    }
+
     res.status(500).json({
       success: false,
-      error: message
+      error: 'Unable to create account at the moment. Please try again later.'
     });
   }
 };
