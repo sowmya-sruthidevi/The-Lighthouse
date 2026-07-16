@@ -163,9 +163,10 @@ exports.updateDietaryProfile = async (req, res) => {
     const { dietaryPreference, allergenAlerts } = req.body;
     const user = await User.findByIdAndUpdate(
       req.user.id,
-      { dietaryPreference, allergenAlerts },
+      fieldsToUpdate,
       { new: true, runValidators: true }
     );
+    
     res.status(200).json({ success: true, user });
   } catch (error) {
     console.error('UpdateDietaryProfile Error:', error); // Log internally for debugging
