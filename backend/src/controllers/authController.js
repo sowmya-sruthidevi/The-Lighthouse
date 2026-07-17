@@ -167,11 +167,32 @@ exports.updateDietaryProfile = async (req, res) => {
     }
 
     const { dietaryPreference, allergenAlerts } = req.body;
-    const user = await User.findByIdAndUpdate(
-      req.user.id,
-      fieldsToUpdate,
-      { new: true, runValidators: true }
-    );
+
+const fieldsToUpdate = {};
+
+if (dietaryPreference !== undefined) {
+  fieldsToUpdate.dietaryPreference = dietaryPreference;
+}
+
+if (allergenAlerts !== undefined) {
+  fieldsToUpdate.allergenAlerts = allergenAlerts;
+}
+
+if (Object.keys(fieldsToUpdate).length === 0) {
+  return res.status(400).json({
+    success: false,
+    error: 'No fields provided to update.'
+  });
+}
+
+const user = await User.findByIdAndUpdate(
+  req.user.id,
+  fieldsToUpdate,
+  {
+    new: true,
+    runValidators: true
+  }
+);
     
     res.status(200).json({ success: true, user });
   } catch (error) {
